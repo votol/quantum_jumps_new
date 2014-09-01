@@ -1,0 +1,19 @@
+geometry:
+    qubit: 1
+    bozon: 2
+relaxations:
+  - name: first oscillator relaxation
+      - formula: a_{1}
+        factor: G
+  - name: second oscillator relaxation
+      - formula: a_{2}
+        factor: G
+hamiltonian:
+  - name: first oscillator
+    formula: ak_{1}*a_{1}
+    factor: nu
+  - name: second oscillator
+    formula: ak_{2}*a_{2}
+    factor: nu
+      
+    

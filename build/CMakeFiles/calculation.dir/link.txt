@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/calculation.dir/main.cpp.o  -o /home/votol/Programming/skach_fish/fish4/bin/debug/calculation -rdynamic /usr/local/cuda/lib64/libcudart.so -Wl,-rpath,/usr/local/cuda/lib64 
