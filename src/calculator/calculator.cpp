@@ -1,4 +1,5 @@
 #include "calculator.h" 
+#include <iostream>
 
 calculator_c::variable_container::variable_container()
     {
@@ -8,9 +9,9 @@ calculator_c::variable_container::~variable_container()
     {
     }
 
-double & calculator_c::variable_container::operator [](int id)
+complex<double> & calculator_c::variable_container::operator [](int id)
     {
-    return a.__re;
+    return ;
     }
 
 calculator_c::calculator_c()

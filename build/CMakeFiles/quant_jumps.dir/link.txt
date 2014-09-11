@@ -1,1 +1,0 @@
-/usr/bin/c++       CMakeFiles/quant_jumps.dir/main.cpp.o CMakeFiles/quant_jumps.dir/calculator/calculator.cpp.o  -o /home/votol/Programming/skach_fish/fish4/bin/debug/quant_jumps -rdynamic /usr/local/cuda/lib64/libcudart.so -lpthread -Wl,-Bstatic -lboost_thread-mt -Wl,-Bdynamic -Wl,-rpath,/usr/local/cuda/lib64 

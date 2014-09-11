@@ -4,5 +4,5 @@
 
 int main(int argc,char **argv)
     {
-    
+    calculator_c calc;
     }

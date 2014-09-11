@@ -26,7 +26,8 @@ find_package(YamlCpp)
 find_package (Threads)
 find_package (Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
 
-include_directories (./calculator)
+include_directories (calculator)
+include_directories (./)
 
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
 
