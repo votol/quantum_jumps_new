@@ -18,6 +18,10 @@ set (HEADERS
     complex.h)
 
 set (EXECUTABLE_OUTPUT_PATH ../bin/debug)
+set(MY_CXX_FLAGS  "-Wall -std=c++11")
+set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
+
+
 
 project (${PROJECT})
 

@@ -3,7 +3,7 @@
 
 #include "complex.h"
 #include <map>
-#include <vector>
+#include <list>
 #include <string>
 
 
@@ -74,7 +74,8 @@ class calculator_c
             {
             private:
                 friend calculator_c;
-                std::map<std::string, complex<double> > container;
+                complex<double > * mas;
+                std::map<std::string, complex<double> * > container;
             public:    
                 variable_container();
                 ~variable_container();
@@ -94,9 +95,12 @@ class calculator_c
                 
                 unsigned int copy_stack_position;
                 unsigned int stack_position;
-                std::list<functor> actions;
-                //for_copiling
+                std::list<functor* > actions;
+                //for_compiling
             public:
+                
+                
+                
                 expression(variable_container *);
                 ~expression();
                 void operator =(const std::string &);
