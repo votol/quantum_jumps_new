@@ -4,6 +4,7 @@
 #include "complex.h"
 #include <map>
 #include <list>
+#include <vector>
 #include <string>
 
 
@@ -11,15 +12,16 @@
 class calculator_c
     {
     private:
+        class calculation_data;
         class expression;
     /*****************************************************************/
     //functors    
         class functor
             {
             protected:    
-                expression *parent;
+                calculation_data *parent;
             public:
-                functor(expression *);
+                functor(calculation_data *);
                 virtual ~functor();
                 virtual void operator() (void)=0;
             };
@@ -28,14 +30,14 @@ class calculator_c
         class constant_copy:public functor
             {
             public:
-                constant_copy(expression *);
+                constant_copy(calculation_data *);
                 ~constant_copy(){};
                 void operator() (void);
             };
         class variable_copy:public functor
             {
             public:
-                variable_copy(expression *);
+                variable_copy(calculation_data *);
                 ~variable_copy(){};
                 void operator() (void);
             };
@@ -43,28 +45,28 @@ class calculator_c
         class plus:public functor
             {
             public:
-                plus(expression *);
+                plus(calculation_data *);
                 ~plus(){};
                 void operator() (void);
             };
         class minus:public functor
             {
             public:
-                minus(expression *);
+                minus(calculation_data *);
                 ~minus(){};
                 void operator() (void);
             };
         class unar_plus:public functor
             {
             public:
-                unar_plus(expression *);
+                unar_plus(calculation_data *);
                 ~unar_plus(){};
                 void operator() (void);
             };
         class unar_minus:public functor
             {
             public:
-                unar_minus(expression *);
+                unar_minus(calculation_data *);
                 ~unar_minus(){};
                 void operator() (void);
             };
@@ -74,6 +76,7 @@ class calculator_c
             {
             private:
                 friend calculator_c;
+                friend expression;
                 complex<double > * mas;
                 std::map<std::string, complex<double> * > container;
             public:    
@@ -83,25 +86,50 @@ class calculator_c
             };
     /*****************************************************************/
     //expresion
-        class expression
+    
+    //special class where data for calculation lies    
+        class calculation_data
+            {
+            public:
+                unsigned int *copy_stack;
+                complex<double> *stack;
+                complex<double> *constants;
+                complex<double> **variables_value;
+                
+                
+                unsigned int copy_stack_position;
+                unsigned int stack_position;
+                
+                
+                calculation_data(){};
+                ~calculation_data(){};
+            };
+        
+    //compilation class
+        class for_compilation
+            {
+            public:
+                std::string name;
+                for_compilation *left;
+                for_compilation *right;
+                for_compilation *parent;
+                std::vector<for_compilation *> dependencies;
+                
+                
+                for_compilation(const std::string &,for_compilation *);
+                ~for_compilation(){};
+                void init(void);
+            };
+    //main expression class    
+        class expression:private calculation_data
             {
             private:
                 variable_container *variables;
                 
-                //for_calculation
-                unsigned int *copy_stack;
-                complex<double> *stack;
-                complex<double> *constants;
-                
-                unsigned int copy_stack_position;
-                unsigned int stack_position;
+                std::map<std::string,std::pair<unsigned char,functor* > > functions;
                 std::list<functor* > actions;
-                //for_compiling
             public:
-                
-                
-                
-                expression(variable_container *);
+                expression(variable_container *,complex<double> **);
                 ~expression();
                 void operator =(const std::string &);
                 complex<double> calculate(void);

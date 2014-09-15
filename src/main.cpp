@@ -9,13 +9,8 @@ int main(int argc,char **argv)
     calculator_c calc;
     try
         {
-        calc.variables["e"]=complex<double>(0,0);
-        calc.expressions.add("asdgaegaqdg");
-        calc.expressions.add("asdgaega");
-        calc.expressions.add("asdgaegaqdgdwwf");
-        calc.expressions[3]="5+sin(3)";
-        calc.expressions.remove(2);
-        calc.expressions.remove(0);
+        calc.variables["t"]=complex<double>(0,0);
+        calc.expressions.add("-5.34e-4+4.56*(8.51-3.14e-1)-8.16*i*(6.45e2+i*5.31e1)");
         }
     catch(const std::invalid_argument& ia)
         {
