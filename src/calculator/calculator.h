@@ -108,22 +108,37 @@ class calculator_c
     //compilation class
         class for_compilation
             {
+            private:
+                bool get_name_l(const std::string &,std::string &, std::string &);
+                bool get_name_r(const std::string &,std::string &, std::string &);
+                bool get_number_l(const std::string &,std::string &, std::string &);
+                bool get_number_r(const std::string &,std::string &, std::string &);
             public:
+                ///type values: 0 - functions and brakets
+                ///             1 - +-*/
+                ///             2 - variables
+                ///             3 - constant
+                char type;
                 std::string name;
+                std::string in_str;
+                
+                expression * parent;
+                
                 for_compilation *left;
                 for_compilation *right;
-                for_compilation *parent;
-                std::vector<for_compilation *> dependencies;
+                for_compilation *up;
+                std::vector<for_compilation *> down;
                 
                 
-                for_compilation(const std::string &,for_compilation *);
-                ~for_compilation(){};
+                for_compilation(expression *,const std::string &);
+                ~for_compilation();
                 void init(void);
             };
     //main expression class    
         class expression:private calculation_data
             {
             private:
+                friend for_compilation;
                 variable_container *variables;
                 
                 std::map<std::string,std::pair<unsigned char,functor* > > functions;
