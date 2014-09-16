@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <ctype.h>
 
-
+int n;
 /**********************************************************************
  *********************************************************************/
 ///complex calculator
@@ -139,15 +139,15 @@ bool calculator_c::for_compilation::get_name_l(const std::string &stri,std::stri
     {
     str1.clear();
     str2.clear();
-    str1=stri;
+    str2=stri;
     while(1)
         {
-        if(str1.length()==0)
+        if(str2.length()==0)
             return true;
-        if(str1[0]!='+'&&str1[0]!='-' &&str1[0]!='*' &&str1[0]!='/')
+        if(str2[0]!='+'&&str2[0]!='-' &&str2[0]!='*' &&str2[0]!='/')
             {
-            str2.push_back(str1[0]);
-            str1.erase(0,1);
+            str1.push_back(str2[0]);
+            str2.erase(0,1);
             }
         else
             return true;
@@ -184,7 +184,6 @@ bool calculator_c::for_compilation::get_number_l(const std::string &stri,std::st
     str2=stri;
     while(1)
         {
-        //std::cout<<str1<<"  "<<str2<<std::endl;
         if(str2.length()==0)
             {
             if(stri.length()==0)
@@ -326,7 +325,6 @@ bool calculator_c::for_compilation::get_number_r(const std::string &stri,std::st
     str1=stri;
     while(1)
         {
-        //std::cout<<str1<<"  "<<str2<<std::endl;
         if(str1.length()==0)
             {
             if(stri.length()==0)
@@ -462,6 +460,18 @@ bool calculator_c::for_compilation::get_number_r(const std::string &stri,std::st
         }
     }
 
+void calculator_c::for_compilation::change_down(for_compilation* in1,for_compilation* in2)
+    {
+    for(auto it=down.begin();it!=down.end();++it)
+        {
+        if(*it==in1)
+            {
+            *it=in2;
+            break;
+            }
+        }
+    }
+
 calculator_c::for_compilation::for_compilation(expression *in1,const std::string &in2)
     {
     type=-1;
@@ -471,6 +481,8 @@ calculator_c::for_compilation::for_compilation(expression *in1,const std::string
     left=NULL;
     right=NULL;
     up=NULL;
+    num=n;
+    n++;
     }
 
 calculator_c::for_compilation::~for_compilation()
@@ -481,11 +493,10 @@ calculator_c::for_compilation::~for_compilation()
 
 void calculator_c::for_compilation::init(void)
     {
-    size_t peri1,peri2,peri3;
-    bool left_i=false,right_i=false;
+    size_t peri1,peri2;
     std::string str1,str2,str3; 
     std::cout<<in_str<<std::endl;
-    if(in_str.length()==0)
+    if(in_str.length()==0&&type==-1)
         throw std::invalid_argument("Wrong expression");
     /*****************************************************************/
     peri1=in_str.find_first_of("(");
@@ -507,6 +518,7 @@ void calculator_c::for_compilation::init(void)
                 }
             input_number=parent->functions[name].first;
             }
+        name="(";
         if(str1.length()!=0)
             {
             for_compilation *left_per;
@@ -514,7 +526,6 @@ void calculator_c::for_compilation::init(void)
             left_per->right=this;
             left_per->left=left;
             left=left_per;
-            left_i=true;
             }
         else if(left!=NULL)
             {
@@ -560,6 +571,8 @@ void calculator_c::for_compilation::init(void)
             down[perc1]->up=this;
             down[perc1]->init();
             }
+        if(peri1!=0)
+            throw std::invalid_argument("Unbalansed brackets ");
         if(in_str.length()!=0)
             {
             for_compilation *right_per;
@@ -567,16 +580,15 @@ void calculator_c::for_compilation::init(void)
             right_per->left=this;
             right_per->right=right;
             right=right_per;
-            right_i=true;
             }
         else if(right!=NULL)
             {
             throw std::invalid_argument("Wrong expression");
             }
         in_str.clear();
-        if(left!=NULL&&left_i==true)    
+        if(left!=NULL)    
             left->init();
-        if(right!=NULL&&right_i==true)
+        if(right!=NULL)
             right->init();
         return;
         }
@@ -611,20 +623,25 @@ void calculator_c::for_compilation::init(void)
         ///left term
         if(peri1==0)
             {
-            
             if(left==NULL)
                 throw std::invalid_argument("Wrong expression");
             down[0]=left;
             left=down[0]->left;
             if(left!=NULL)
                 left->right=this;
+            if(up==NULL)    
+                {
+                up=down[0]->up;
+                if(up!=NULL)
+                    up->change_down(down[0],this);
+                }
             down[0]->up=this;
             down[0]->left=NULL;
             down[0]->right=NULL;
             }
         else if(get_number_r(in_str.substr(0,peri1),str1,str2)==true)
             {
-            down[0]=new for_compilation(parent,"");
+            down[0]=new for_compilation(parent,str2);
             down[0]->type=3;
             down[0]->up=this;
             down[0]->name=str2;
@@ -635,7 +652,6 @@ void calculator_c::for_compilation::init(void)
                 left_per->right=this;
                 left_per->left=left;
                 left=left_per;
-                left_i=true;
                 }
             else if(left!=NULL)
                 {
@@ -645,7 +661,7 @@ void calculator_c::for_compilation::init(void)
         else
             {
             get_name_r(in_str.substr(0,peri1),str1,str2);
-            down[0]=new for_compilation(parent,"");
+            down[0]=new for_compilation(parent,str2);
             down[0]->type=2;
             down[0]->up=this;
             down[0]->name=str2;
@@ -656,7 +672,6 @@ void calculator_c::for_compilation::init(void)
                 left_per->right=this;
                 left_per->left=left;
                 left=left_per;
-                left_i=true;
                 }
             else if(left!=NULL)
                 {
@@ -673,13 +688,19 @@ void calculator_c::for_compilation::init(void)
             right=down[1]->right;
             if(right!=NULL)    
                 right->left=this;
+            if(up==NULL)    
+                {
+                up=down[1]->up;
+                if(up!=NULL)
+                    up->change_down(down[1],this);
+                }
             down[1]->up=this;
             down[1]->left=NULL;
             down[1]->right=NULL;
             }
         else if(get_number_l(in_str,str1,str2)==true)
             {
-            down[1]=new for_compilation(parent,"");
+            down[1]=new for_compilation(parent,str1);
             down[1]->type=3;
             down[1]->up=this;
             down[1]->name=str1;
@@ -690,17 +711,16 @@ void calculator_c::for_compilation::init(void)
                 right_per->left=this;
                 right_per->right=right;
                 right=right_per;
-                right_i=true;
                 }
             else if(right!=NULL)
                 {
-                throw std::invalid_argument("Wrong expressio");
+                throw std::invalid_argument("Wrong expression");
                 }
             }
         else
             {
-            get_name_l(in_str.substr(0,peri1),str1,str2);
-            down[1]=new for_compilation(parent,"");
+            get_name_l(in_str,str1,str2);
+            down[1]=new for_compilation(parent,str1);
             down[1]->type=2;
             down[1]->up=this;
             down[1]->name=str1;
@@ -711,23 +731,356 @@ void calculator_c::for_compilation::init(void)
                 right_per->left=this;
                 right_per->right=right;
                 right=right_per;
-                right_i=true;
                 }
             else if(right!=NULL)
                 {
                 throw std::invalid_argument("Wrong expression");
                 }
             }
-        
         in_str.clear();
-        
-            
-        if(left!=NULL/*&&left_i==true*/)    
+        if(left!=NULL)    
             left->init();
-        if(right!=NULL/*&&right_i==true*/)
+        if(right!=NULL)
             right->init();
         return;
         }
+    /*****************************************************************/
+    peri1=-1;
+    while(1)    
+        {
+        peri1=in_str.find_first_of("+",peri1+1);
+        if(peri1!=std::string::npos)    
+            {
+            if(peri1>=2)
+                {
+                if(in_str[peri1-1]=='e'&&isdigit(in_str[peri1-2])!=0)
+                    continue;
+                }
+            }
+        break;
+        }
+    if(peri1!=std::string::npos)
+        {
+        char sm=0;
+        type=1;
+        name="+";
+        down.resize(2);
+        ///left term
+        std::cout<<in_str<<":"<<str1<<":"<<str2<<std::endl;
+        if(peri1==0)
+            {
+            if(left==NULL)
+                {
+                name="+!";
+                down.resize(1);
+                sm=1;
+                }
+            else
+                {
+                down[0]=left;
+                left=down[0]->left;
+                if(left!=NULL)
+                    left->right=this;
+                if(up==NULL)    
+                    {
+                    up=down[0]->up;
+                    if(up!=NULL)
+                        up->change_down(down[0],this);
+                    }
+                down[0]->up=this;
+                down[0]->left=NULL;
+                down[0]->right=NULL;
+                }
+            }
+        else if(get_number_r(in_str.substr(0,peri1),str1,str2)==true)
+            {
+            down[0]=new for_compilation(parent,str2);
+            down[0]->type=3;
+            down[0]->up=this;
+            down[0]->name=str2;
+            if(str1.length()!=0)
+                {
+                for_compilation *left_per;
+                left_per=new for_compilation(parent,str1);
+                left_per->right=this;
+                left_per->left=left;
+                left=left_per;
+                }
+            else if(left!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        else
+            {
+            get_name_r(in_str.substr(0,peri1),str1,str2);
+            down[0]=new for_compilation(parent,str2);
+            down[0]->type=2;
+            down[0]->up=this;
+            down[0]->name=str2;
+            if(str1.length()!=0)
+                {
+                for_compilation *left_per;
+                left_per=new for_compilation(parent,str1);
+                left_per->right=this;
+                left_per->left=left;
+                left=left_per;
+                }
+            else if(left!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        in_str.erase(0,peri1+1);
+        ///right term
+        if(in_str.length()==0)
+            {
+            if(right==NULL)
+                throw std::invalid_argument("Wrong expression");
+            down[1-sm]=right;
+            right=down[1-sm]->right;
+            if(right!=NULL)    
+                right->left=this;
+            if(up==NULL)    
+                {
+                up=down[1-sm]->up;
+                if(up!=NULL)
+                    up->change_down(down[1-sm],this);
+                }
+            down[1-sm]->up=this;
+            down[1-sm]->left=NULL;
+            down[1-sm]->right=NULL;
+            }
+        else if(get_number_l(in_str,str1,str2)==true)
+            {
+            down[1-sm]=new for_compilation(parent,str1);
+            down[1-sm]->type=3;
+            down[1-sm]->up=this;
+            down[1-sm]->name=str1;
+            if(str2.length()!=0)
+                {
+                for_compilation *right_per;
+                right_per=new for_compilation(parent,str2);
+                right_per->left=this;
+                right_per->right=right;
+                right=right_per;
+                }
+            else if(right!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        else
+            {
+            get_name_l(in_str,str1,str2);
+            down[1-sm]=new for_compilation(parent,str1);
+            down[1-sm]->type=2;
+            down[1-sm]->up=this;
+            down[1-sm]->name=str1;
+            if(str2.length()!=0)
+                {
+                for_compilation *right_per;
+                right_per=new for_compilation(parent,str2);
+                right_per->left=this;
+                right_per->right=right;
+                right=right_per;
+                }
+            else if(right!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        in_str.clear();
+        if(left!=NULL)    
+            left->init();
+        if(right!=NULL)
+            right->init();
+        return;
+        }
+    /*****************************************************************/
+    peri1=-1;
+    while(1)    
+        {
+        peri1=in_str.find_first_of("-",peri1+1);
+        if(peri1!=std::string::npos)    
+            {
+            if(peri1>=2)
+                {
+                if(in_str[peri1-1]=='e'&&isdigit(in_str[peri1-2])!=0)
+                    continue;
+                }
+            }
+        break;
+        }
+    if(peri1!=std::string::npos)
+        {
+        char sm=0;
+        type=1;
+        name="-";
+        down.resize(2);
+        ///left term
+        std::cout<<in_str<<":"<<str1<<":"<<str2<<std::endl;
+        if(peri1==0)
+            {
+            if(left==NULL)
+                {
+                name="-!";
+                down.resize(1);
+                sm=1;
+                }
+            else
+                {
+                down[0]=left;
+                left=down[0]->left;
+                if(left!=NULL)
+                    left->right=this;
+                if(up==NULL)
+                    {
+                    up=down[0]->up;
+                    if(up!=NULL)
+                        up->change_down(down[0],this);
+                    }
+                down[0]->up=this;
+                down[0]->left=NULL;
+                down[0]->right=NULL;
+                }
+            }
+        else if(get_number_r(in_str.substr(0,peri1),str1,str2)==true)
+            {
+            down[0]=new for_compilation(parent,str2);
+            down[0]->type=3;
+            down[0]->up=this;
+            down[0]->name=str2;
+            if(str1.length()!=0)
+                {
+                for_compilation *left_per;
+                left_per=new for_compilation(parent,str1);
+                left_per->right=this;
+                left_per->left=left;
+                left=left_per;
+                }
+            else if(left!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        else
+            {
+            get_name_r(in_str.substr(0,peri1),str1,str2);
+            down[0]=new for_compilation(parent,str2);
+            down[0]->type=2;
+            down[0]->up=this;
+            down[0]->name=str2;
+            if(str1.length()!=0)
+                {
+                for_compilation *left_per;
+                left_per=new for_compilation(parent,str1);
+                left_per->right=this;
+                left_per->left=left;
+                left=left_per;
+                }
+            else if(left!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        in_str.erase(0,peri1+1);
+        ///right term
+        if(in_str.length()==0)
+            {
+            if(right==NULL)
+                throw std::invalid_argument("Wrong expression");
+            down[1-sm]=right;
+            right=down[1-sm]->right;
+            if(right!=NULL)    
+                right->left=this;
+            if(up==NULL)
+                {
+                up=down[1-sm]->up;
+                if(up!=NULL)
+                    up->change_down(down[1-sm],this);
+                }
+            down[1-sm]->up=this;
+            down[1-sm]->left=NULL;
+            down[1-sm]->right=NULL;
+            }
+        else if(get_number_l(in_str,str1,str2)==true)
+            {
+            down[1-sm]=new for_compilation(parent,str1);
+            down[1-sm]->type=3;
+            down[1-sm]->up=this;
+            down[1-sm]->name=str1;
+            if(str2.length()!=0)
+                {
+                for_compilation *right_per;
+                right_per=new for_compilation(parent,str2);
+                right_per->left=this;
+                right_per->right=right;
+                right=right_per;
+                }
+            else if(right!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        else
+            {
+            get_name_l(in_str,str1,str2);
+            down[1-sm]=new for_compilation(parent,str1);
+            down[1-sm]->type=2;
+            down[1-sm]->up=this;
+            down[1-sm]->name=str1;
+            if(str2.length()!=0)
+                {
+                for_compilation *right_per;
+                right_per=new for_compilation(parent,str2);
+                right_per->left=this;
+                right_per->right=right;
+                right=right_per;
+                }
+            else if(right!=NULL)
+                {
+                throw std::invalid_argument("Wrong expression");
+                }
+            }
+        in_str.clear();
+        if(left!=NULL)    
+            left->init();
+        if(right!=NULL)
+            right->init();
+        return;
+        }
+    }
+void calculator_c::for_compilation::out(int in,int in1)
+    {
+    std::cout<<in<<":"<<num<<":";
+    if(up!=NULL)
+        std::cout<<up->num;
+    std::cout<<":"<<in1<<":"<<name<<std::endl;
+    /*if(left!=NULL)
+        left->out_l(in);
+    if(right!=NULL)
+        right->out_r(in);*/
+    for(auto it=down.begin();it!=down.end();++it)
+        (*it)->out(in+1,num);
+    }
+
+void calculator_c::for_compilation::out_l(int in)
+    {
+    std::cout<<in<<":"<<name<<std::endl;
+    if(left!=NULL)
+        left->out_l(in);
+    for(auto it=down.begin();it!=down.end();++it)
+        (*it)->out(in+1,-2);
+    }
+
+void calculator_c::for_compilation::out_r(int in)
+    {
+    std::cout<<in<<":"<<name<<std::endl;
+    if(right!=NULL)
+        right->out_r(in);
+    for(auto it=down.begin();it!=down.end();++it)
+        (*it)->out(in+1,-2);
     }
 ///epression
 calculator_c::expression::expression(variable_container *in, complex<double> ** var_val)
@@ -762,8 +1115,14 @@ void calculator_c::expression::operator =(const std::string &in)
         }
     actions.clear();
     ///start compiling
+    n=0;
     for_compilation *compil=new for_compilation(this,in);
     compil->init();
+    while(compil->up!=NULL)
+        {
+        compil=compil->up;
+        }
+    compil->out(0,-1);
     }
 
 complex<double> calculator_c::expression::calculate(void)

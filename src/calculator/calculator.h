@@ -113,7 +113,9 @@ class calculator_c
                 bool get_name_r(const std::string &,std::string &, std::string &);
                 bool get_number_l(const std::string &,std::string &, std::string &);
                 bool get_number_r(const std::string &,std::string &, std::string &);
+                void change_down(for_compilation*,for_compilation*);
             public:
+                int num;
                 ///type values: 0 - functions and brakets
                 ///             1 - +-*/
                 ///             2 - variables
@@ -133,6 +135,10 @@ class calculator_c
                 for_compilation(expression *,const std::string &);
                 ~for_compilation();
                 void init(void);
+            
+                void out(int,int);
+                void out_l(int);
+                void out_r(int);
             };
     //main expression class    
         class expression:private calculation_data
