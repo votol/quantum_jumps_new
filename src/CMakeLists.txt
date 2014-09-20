@@ -4,7 +4,8 @@ set (PROJECT
 	quant_jumps)
 
 set (BOOST_COMPONENTS 
-	thread)
+	thread
+    date_time)
     
 set (Boost_USE_STATIC_LIBS ON)
  

@@ -20,7 +20,7 @@ class calculator_base
                 virtual void operator() (void)=0;
             };
     /*****************************************************************/
-        typedef std::map<std::string,std::pair<unsigned char,functor* > > functions;
+        typedef std::map<std::string,std::pair<unsigned char,functor * > > functions;
     ///compilation class
         class for_compilation
             {

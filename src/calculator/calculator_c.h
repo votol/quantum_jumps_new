@@ -130,8 +130,22 @@ class calculator_c:private calculator_base
                 
                 functions funcs;
                 std::list<functor* > actions;
+            
+                ///post compilation
+                int constant_num;
+                int stack_num;
+                int stack_max;
+                std::list<unsigned int> copy_stack_list;
+                std::list<complex<double> > constants_list;
+                
+                void linearization(for_compilation *);
+            
+            
+                ///functions
+                void fun_per(void);
+                void (*fun_per1)(void);
             public:
-                expression(variable_container *,complex<double> **);
+                expression(variable_container *);
                 ~expression();
                 void operator =(const std::string &);
                 complex<double> calculate(void);
