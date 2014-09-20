@@ -11,10 +11,12 @@ set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_MULTITHREADED ON)
 
 set(SOURCES main.cpp
-            calculator/calculator.cpp)
+            calculator/calculator_base.cpp
+            calculator/calculator_c.cpp)
 
 set (HEADERS 
-	calculator/calculator.h
+	calculator/calculator_base.h
+    calculator/calculator_c.h
     complex.h)
 
 set (EXECUTABLE_OUTPUT_PATH ../bin/debug)

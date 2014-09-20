@@ -1,40 +1,35 @@
-#ifndef __CALCULATOR_H_
-#define __CALCULATOR_H_
+#ifndef __CALCULATOR_C_H_
+#define __CALCULATOR_C_H_
 
-#include "complex.h"
-#include <map>
-#include <list>
-#include <vector>
-#include <string>
+
+#include "calculator_base.h"
 
 
 
-class calculator_c
+
+class calculator_c:private calculator_base
     {
     private:
         class calculation_data;
         class expression;
     /*****************************************************************/
-    //functors    
-        class functor
+    ///functors    
+        class functor_c:public functor
             {
             protected:    
                 calculation_data *parent;
             public:
-                functor(calculation_data *);
-                virtual ~functor();
-                virtual void operator() (void)=0;
+                functor_c(calculation_data *);
+                virtual ~functor_c();
             };
-    
-    
-        class constant_copy:public functor
+        class constant_copy:public functor_c
             {
             public:
                 constant_copy(calculation_data *);
                 ~constant_copy(){};
                 void operator() (void);
             };
-        class variable_copy:public functor
+        class variable_copy:public functor_c
             {
             public:
                 variable_copy(calculation_data *);
@@ -42,36 +37,57 @@ class calculator_c
                 void operator() (void);
             };
     
-        class plus:public functor
+        class plus:public functor_c
             {
             public:
                 plus(calculation_data *);
                 ~plus(){};
                 void operator() (void);
             };
-        class minus:public functor
+        class minus:public functor_c
             {
             public:
                 minus(calculation_data *);
                 ~minus(){};
                 void operator() (void);
             };
-        class unar_plus:public functor
+        class unar_plus:public functor_c
             {
             public:
                 unar_plus(calculation_data *);
                 ~unar_plus(){};
                 void operator() (void);
             };
-        class unar_minus:public functor
+        class unar_minus:public functor_c
             {
             public:
                 unar_minus(calculation_data *);
                 ~unar_minus(){};
                 void operator() (void);
             };
+        class mul:public functor_c
+            {
+            public:
+                mul(calculation_data *);
+                ~mul(){};
+                void operator() (void);
+            };
+        class div:public functor_c
+            {
+            public:
+                div(calculation_data *);
+                ~div(){};
+                void operator() (void);
+            };
+        class my_exp:public functor_c
+            {
+            public:
+                my_exp(calculation_data *);
+                ~my_exp(){};
+                void operator() (void);
+            };
     /*****************************************************************/
-    //variables    
+    ///variables    
         class variable_container
             {
             private:
@@ -85,9 +101,9 @@ class calculator_c
                 complex<double> & operator [] (std::string);
             };
     /*****************************************************************/
-    //expresion
+    ///expresion
     
-    //special class where data for calculation lies    
+    ///special class where data for calculation lies    
         class calculation_data
             {
             public:
@@ -105,49 +121,14 @@ class calculator_c
                 ~calculation_data(){};
             };
         
-    //compilation class
-        class for_compilation
-            {
-            private:
-                bool get_name_l(const std::string &,std::string &, std::string &);
-                bool get_name_r(const std::string &,std::string &, std::string &);
-                bool get_number_l(const std::string &,std::string &, std::string &);
-                bool get_number_r(const std::string &,std::string &, std::string &);
-                void change_down(for_compilation*,for_compilation*);
-            public:
-                int num;
-                ///type values: 0 - functions and brakets
-                ///             1 - +-*/
-                ///             2 - variables
-                ///             3 - constant
-                char type;
-                std::string name;
-                std::string in_str;
-                
-                expression * parent;
-                
-                for_compilation *left;
-                for_compilation *right;
-                for_compilation *up;
-                std::vector<for_compilation *> down;
-                
-                
-                for_compilation(expression *,const std::string &);
-                ~for_compilation();
-                void init(void);
-            
-                void out(int,int);
-                void out_l(int);
-                void out_r(int);
-            };
-    //main expression class    
+    
+    ///main expression class    
         class expression:private calculation_data
             {
             private:
-                friend for_compilation;
                 variable_container *variables;
                 
-                std::map<std::string,std::pair<unsigned char,functor* > > functions;
+                functions funcs;
                 std::list<functor* > actions;
             public:
                 expression(variable_container *,complex<double> **);
@@ -156,7 +137,7 @@ class calculator_c
                 complex<double> calculate(void);
             };
     /*****************************************************************/
-    //expression_container
+    ///expression_container
         class expression_container
             {
             private:
